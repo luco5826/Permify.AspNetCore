@@ -3,6 +3,13 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
+    <Version>0.0.1</Version>
+    <Authors>Luca Errani</Authors>
+    <PackageProjectUrl>https://github.com/luco5826/Permify.AspNetCore</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/luco5826/Permify.AspNetCore</RepositoryUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,5 +20,8 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
     <PackageReference Include="Google.Protobuf" Version="3.21.12" />
     <PackageReference Include="Grpc.Net.Client" Version="2.50.0" />
+
+    <None Include="LICENSE" Pack="true" PackagePath="" />
+    <None Include="README.md" Pack="true" PackagePath="README.md" />
   </ItemGroup>
 </Project>

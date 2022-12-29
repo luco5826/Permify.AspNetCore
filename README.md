@@ -4,7 +4,12 @@ This is an unofficial implementation of the [Permify](https://github.com/Permify
 
 ## Installation
 
-TODO: installation through NuGet
+This package is available as a NuGet package and can be added to your project through the command
+
+```
+dotnet add package Permify.AspNetCore
+```
+
 
 ## Usage
 
