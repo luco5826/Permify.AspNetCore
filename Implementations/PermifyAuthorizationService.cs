@@ -42,6 +42,30 @@ public class PermifyAuthorizationService : IPermifyAuthorizationService
         return response.SnapToken;
     }
 
+    public async Task<string> DeleteRelationship(Entity entity, string relation, Subject subject)
+    {
+        // Build the EntityFilter
+        var entityFilter = new Base.V1.EntityFilter { Type = entity.Type };
+        entityFilter.Ids.Add(entity.Id);
+
+        // Build the SubjectFilter
+        var subjectFilter = new Base.V1.SubjectFilter { Type = subject.Type, Relation = subject.Relation };
+        subjectFilter.Ids.Add(subject.Id);
+
+        // Perform the action
+        var response = await _relationshipClient.DeleteAsync(new Base.V1.RelationshipDeleteRequest
+        {
+            Filter = new Base.V1.TupleFilter
+            {
+                Entity = entityFilter,
+                Relation = relation,
+                Subject = subjectFilter
+            },
+        });
+
+        return response.SnapToken;
+    }
+
     public async Task<bool> Can(Subject subject, string action, Entity entity)
     {
         var response = await _permissionClient.CheckAsync(
