@@ -2,7 +2,7 @@ namespace Permify.AspNetCore.Model;
 
 public class Subject
 {
-    public Subject(string id, string type, string? relation = null)
+    public Subject(string id, string type, string relation = "")
     {
         Id = id;
         Type = type;

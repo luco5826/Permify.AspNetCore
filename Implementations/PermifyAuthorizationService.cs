@@ -1,3 +1,4 @@
+using Google.Protobuf.Collections;
 using Grpc.Net.Client;
 using Permify.AspNetCore.Extensions;
 using Permify.AspNetCore.Interfaces;
@@ -66,6 +67,23 @@ public class PermifyAuthorizationService : IPermifyAuthorizationService
         return response.SnapToken;
     }
 
+    public async Task<IEnumerable<string>> SchemaLookup(string entityType, IEnumerable<string> relationNames)
+    {
+        var request = new Base.V1.PermissionLookupSchemaRequest
+        {
+            Metadata = new Base.V1.PermissionLookupSchemaRequestMetadata
+            {
+                SchemaVersion = "",
+            },
+            EntityType = entityType,
+        };
+        request.RelationNames.AddRange(relationNames);
+
+        var response = await _permissionClient.LookupSchemaAsync(request);
+
+        return response.ActionNames.AsEnumerable<string>();
+    }
+
     public async Task<bool> Can(Subject subject, string action, Entity entity)
     {
         var response = await _permissionClient.CheckAsync(
@@ -91,5 +109,26 @@ public class PermifyAuthorizationService : IPermifyAuthorizationService
         );
 
         return response.Can == Base.V1.PermissionCheckResponse.Types.Result.Allowed;
+    }
+
+    public async Task<IEnumerable<Subject>> ReadRelationship(Entity entity, string relation)
+    {
+        var entityFilter = new Base.V1.EntityFilter
+        {
+            Type = entity.Type
+        };
+        entityFilter.Ids.Add(entity.Id);
+
+        var response = await _relationshipClient.ReadAsync(new Base.V1.RelationshipReadRequest
+        {
+            Metadata = new Base.V1.RelationshipReadRequestMetadata { SnapToken = "" },
+            Filter = new Base.V1.TupleFilter
+            {
+                Entity = entityFilter,
+                Relation = relation
+            }
+        });
+
+        return response.Tuples.Select(tuple => new Subject(tuple.Subject.Id, tuple.Subject.Type));
     }
 }

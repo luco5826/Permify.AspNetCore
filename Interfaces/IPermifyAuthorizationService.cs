@@ -23,6 +23,22 @@ public interface IPermifyAuthorizationService
     Task<string> DeleteRelationship(Entity entity, string relation, Subject subject);
 
     /// <summary>
+    /// Retrieve the collection of <see cref="Subject"/> that are connected to the given <paramref name="entity"/> through <paramref name="relation"/>
+    /// </summary>
+    /// <param name="entity">The <seealso cref="Entity"/> of the relationship</param>
+    /// <param name="relation">The name of the relation within the <seealso cref="Entity"/></param>
+    /// <returns>The collection of <see cref="Subject"/> connected to the entity</returns>
+    Task<IEnumerable<Subject>> ReadRelationship(Entity entity, string relation);
+
+    /// <summary>
+    /// Lookup the schema retrieving the collection of actions that a given relation can perform
+    /// </summary>
+    /// <param name="entityType">The <see cref="Entity"/> to lookup</param>
+    /// <param name="relationNames">The collection of relations to lookup</param>
+    /// <returns>The collection of action that the given relations can perform</returns>
+    Task<IEnumerable<string>> SchemaLookup(string entityType, IEnumerable<string> relationNames);
+
+    /// <summary>
     /// Check whether or not the given <paramref name="subject"/> is allowed to execute the given <paramref name="action"/> on the given <paramref name="entity"/>
     /// </summary>
     /// <param name="subject">The <seealso cref="Subject"/> that wants to execute the action</param>
