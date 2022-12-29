@@ -57,7 +57,7 @@ Once all the tools have been installed, clone the repository, generate the proto
 
 ```
 git clone https://github.com/luco5826/Permify.AspNetCore.git
-cd Permify.AspNetCore/Protos
+cd Permify.AspNetCore/src/Permify.AspNetCore/Protos
 buf generate --include-imports
 cd ..
 dotnet build
