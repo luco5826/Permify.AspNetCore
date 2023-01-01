@@ -32,13 +32,13 @@ public Task<ActionResult> GetData()
     bool isUserAllowed = await _authorizationService.Can
     (
         // Extract from the HTTP request
-        new Subject { Id = "1", Type = "user" }, 
+        new Subject("1", "user"), 
 
         // Depending on the action this request is representing
         "get_data",
 
         // Extracted from request parameters
-        new Entity { Id = "10", Type = "datarepo" }
+        new Entity("10", "datarepo")
     );
 
     if (!isUserAllowed)
