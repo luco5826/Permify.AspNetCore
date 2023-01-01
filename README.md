@@ -22,6 +22,9 @@ builder.Services.AddPermify(opts =>
     opts.Host = "http://localhost:3478";
 });
 
+// From now on, the IPermifyAuthorizationService singleton is available for DI
+
+
 // MyController.cs
 [HttpGet]
 public Task<ActionResult> GetData()
