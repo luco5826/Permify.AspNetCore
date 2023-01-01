@@ -107,4 +107,65 @@ public class PermifySerivceTests
         Assert.IsTrue(ownerCanDelete);
         Assert.IsFalse(memberCanDelete);
     }
+
+    [Test]
+    public async Task SchemaLookup_RepositoryParentAdmin()
+    {
+        // Arrange
+
+        // Act
+        var actions = await _service.SchemaLookup("repository", new[] { "parent.admin" });
+
+        // Assert
+        Assert.AreEqual(2, actions.Count());
+        Assert.IsTrue(actions.Where(a => a == "delete").Count() == 1);
+        Assert.IsTrue(actions.Where(a => a == "read").Count() == 1);
+    }
+
+    [Test]
+    public async Task SchemaLookup_RepositoryOwner()
+    {
+        // Arrange
+
+        // Act
+        var actions = await _service.SchemaLookup("repository", new[] { "owner" });
+
+        // Assert
+        Assert.AreEqual(3, actions.Count());
+        Assert.IsTrue(actions.Where(a => a == "push").Count() == 1);
+        Assert.IsTrue(actions.Where(a => a == "delete").Count() == 1);
+        Assert.IsTrue(actions.Where(a => a == "read").Count() == 1);
+    }
+
+    [Test]
+    public async Task DeleteRelationship()
+    {
+        // Arrange
+        await _service.CreateRelationship(new Entity("30", "repository"), "owner", new Subject("21", "user"));
+
+        // Act
+        bool ownerCanPushBefore = await _service.Can(new Subject("21", "user"), "push", new Entity("30", "repository"));
+        _ = await _service.DeleteRelationship(new Entity("30", "repository"), "owner", new Subject("21", "user"));
+        bool ownerCanPushAfter = await _service.Can(new Subject("21", "user"), "push", new Entity("30", "repository"));
+
+        // Assert
+        Assert.IsTrue(ownerCanPushBefore);
+        Assert.IsFalse(ownerCanPushAfter);
+    }
+
+    [Test]
+    public async Task ReadRelationship()
+    {
+        // Arrange
+        await _service.CreateRelationship(new Entity("10", "organization"), "member", new Subject("20", "user"));
+        await _service.CreateRelationship(new Entity("10", "organization"), "member", new Subject("21", "user"));
+
+        // Act
+        var subjects = await _service.ReadRelationship(new Entity("10", "organization"), "member");
+
+        // Assert
+        Assert.AreEqual(2, subjects.Count());
+        Assert.IsTrue(subjects.Where(s => s.Id == "20").Count() == 1);
+        Assert.IsTrue(subjects.Where(s => s.Id == "21").Count() == 1);
+    }
 }
