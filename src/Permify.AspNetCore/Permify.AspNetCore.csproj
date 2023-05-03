@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Authors>Luca Errani</Authors>
     <PackageProjectUrl>https://github.com/luco5826/Permify.AspNetCore</PackageProjectUrl>
     <RepositoryUrl>https://github.com/luco5826/Permify.AspNetCore</RepositoryUrl>

@@ -17,12 +17,12 @@ import "protoc-gen-openapiv2/options/annotations.proto";
 service Permission {
   rpc Check(PermissionCheckRequest) returns (PermissionCheckResponse) {
     option (google.api.http) = {
-      post: "/v1/permissions/check"
+      post: "/v1/tenants/{tenant_id}/permissions/check"
       body: "*"
     };
 
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "This method returns a decision about whether user can perform an action on a certain resource. For example, Can the user 1 push to repository 1?"
+      summary: "This method returns a decision about whether user can perform an permission on a certain resource. For example, Can the user 1 push to repository 1?"
       tags: [
         "Permission"
       ]
@@ -32,7 +32,7 @@ service Permission {
 
   rpc Expand(PermissionExpandRequest) returns (PermissionExpandResponse) {
     option (google.api.http) = {
-      post: "/v1/permissions/expand"
+      post: "/v1/tenants/{tenant_id}/permissions/expand"
       body: "*"
     };
 
@@ -47,7 +47,7 @@ service Permission {
 
   rpc LookupSchema(PermissionLookupSchemaRequest) returns (PermissionLookupSchemaResponse) {
     option (google.api.http) = {
-      post: "/v1/permissions/lookup-schema"
+      post: "/v1/tenants/{tenant_id}/permissions/lookup-schema"
       body: "*"
     };
 
@@ -62,7 +62,7 @@ service Permission {
 
   rpc LookupEntity(PermissionLookupEntityRequest) returns (PermissionLookupEntityResponse) {
     option (google.api.http) = {
-      post: "/v1/permissions/lookup-entity"
+      post: "/v1/tenants/{tenant_id}/permissions/lookup-entity"
       body: "*"
     };
 
@@ -77,7 +77,7 @@ service Permission {
 
   rpc LookupEntityStream(PermissionLookupEntityRequest) returns (stream PermissionLookupEntityStreamResponse) {
     option (google.api.http) = {
-      post: "/v1/permissions/lookup-entity-stream"
+      post: "/v1/tenants/{tenant_id}/permissions/lookup-entity-stream"
       body: "*"
     };
 
@@ -93,20 +93,26 @@ service Permission {
 
 // CHECK
 
-// CheckRequest
+// PermissionCheckRequest
 message PermissionCheckRequest {
-  PermissionCheckRequestMetadata metadata = 1 [json_name = "metadata", (validate.rules).message.required = true];
-
-  Entity entity = 2 [json_name = "entity", (validate.rules).message.required = true];
-
-  // its can be action or relation
-  string permission = 3 [json_name = "permission", (validate.rules).string = {
-    pattern : "^([a-z][a-z0-9_]{1,62}[a-z0-9])$",
+  string tenant_id = 1 [json_name = "tenant_id", (validate.rules).string = {
+    pattern : "[a-zA-Z0-9-,]+",
     max_bytes : 64,
     ignore_empty: false,
   }];
 
-  Subject subject = 4 [json_name = "subject", (validate.rules).message.required = true];
+  PermissionCheckRequestMetadata metadata = 2 [json_name = "metadata", (validate.rules).message.required = true];
+
+  Entity entity = 3 [json_name = "entity", (validate.rules).message.required = true];
+
+  // its can be permission or relation
+  string permission = 4 [json_name = "permission", (validate.rules).string = {
+    pattern : "^([a-zA-Z][a-zA-Z0-9_]{1,62}[a-zA-Z0-9])$",
+    max_bytes : 64,
+    ignore_empty: false,
+  }];
+
+  Subject subject = 5 [json_name = "subject", (validate.rules).message.required = true];
 }
 
 // PermissionCheckRequestMetadata
@@ -139,18 +145,24 @@ message PermissionCheckResponseMetadata {
 
 // PermissionExpandRequest
 message PermissionExpandRequest {
-  PermissionExpandRequestMetadata metadata = 1 [json_name = "metadata", (validate.rules).message.required = true];
+  string tenant_id = 1 [json_name = "tenant_id", (validate.rules).string = {
+    pattern : "[a-zA-Z0-9-,]+",
+    max_bytes : 64,
+    ignore_empty: false,
+  }];
 
-  Entity entity = 2 [json_name = "entity", (validate.rules).message.required = true];
+  PermissionExpandRequestMetadata metadata = 2 [json_name = "metadata", (validate.rules).message.required = true];
 
-  string permission = 3 [json_name = "permission", (validate.rules).string = {
-    pattern : "^([a-z][a-z0-9_]{1,62}[a-z0-9])$",
+  Entity entity = 3 [json_name = "entity", (validate.rules).message.required = true];
+
+  string permission = 4 [json_name = "permission", (validate.rules).string = {
+    pattern : "^([a-zA-Z][a-zA-Z0-9_]{1,62}[a-zA-Z0-9])$",
     max_bytes : 64,
     ignore_empty: true,
   }];
 }
 
-// ExpandRequestMetadata
+// PermissionExpandRequestMetadata
 message PermissionExpandRequestMetadata {
   string schema_version = 1 [json_name = "schema_version"];
   string snap_token = 2 [json_name = "snap_token"];
@@ -165,47 +177,59 @@ message PermissionExpandResponse {
 
 // PermissionLookupSchemaRequest
 message PermissionLookupSchemaRequest {
-  PermissionLookupSchemaRequestMetadata metadata = 1 [json_name = "metadata", (validate.rules).message.required = true];
+  string tenant_id = 1 [json_name = "tenant_id", (validate.rules).string = {
+    pattern : "[a-zA-Z0-9-,]+",
+    max_bytes : 64,
+    ignore_empty: false,
+  }];
 
-  string entity_type = 2 [json_name = "entity_type", (validate.rules).string = {
+  PermissionLookupSchemaRequestMetadata metadata = 2 [json_name = "metadata", (validate.rules).message.required = true];
+
+  string entity_type = 3 [json_name = "entity_type", (validate.rules).string = {
     pattern : "^([a-z][a-z0-9_]{1,62}[a-z0-9])$",
     max_bytes : 64,
     ignore_empty: false,
   }];
 
-  repeated string relation_names = 3 [json_name = "relation_names"];
+  repeated string relation_names = 4 [json_name = "relation_names"];
 }
 
-// LookupSchemaRequestMetadata
+// PermissionLookupSchemaRequestMetadata
 message PermissionLookupSchemaRequestMetadata {
   string schema_version = 1 [json_name = "schema_version"];
 }
 
 // PermissionLookupSchemaResponse
 message PermissionLookupSchemaResponse {
-  repeated string action_names = 1 [json_name = "action_names"];
+  repeated string permission_names = 1 [json_name = "permission_names"];
 }
 
 // PermissionLookupEntityRequest
 message PermissionLookupEntityRequest {
-  PermissionLookupEntityRequestMetadata metadata = 1 [json_name = "metadata", (validate.rules).message.required = true];
-
-  string entity_type = 2 [json_name = "entity_type", (validate.rules).string = {
-    pattern : "^([a-z][a-z0-9_]{1,62}[a-z0-9])$",
+  string tenant_id = 1 [json_name = "tenant_id", (validate.rules).string = {
+    pattern : "[a-zA-Z0-9-,]+",
     max_bytes : 64,
     ignore_empty: false,
   }];
 
-  string permission = 3 [json_name = "permission", (validate.rules).string = {
-    pattern : "^([a-z][a-z0-9_]{1,62}[a-z0-9])$",
+  PermissionLookupEntityRequestMetadata metadata = 2 [json_name = "metadata", (validate.rules).message.required = true];
+
+  string entity_type = 3 [json_name = "entity_type", (validate.rules).string = {
+    pattern : "^([a-zA-Z][a-zA-Z0-9_]{1,62}[a-zA-Z0-9])$",
     max_bytes : 64,
     ignore_empty: false,
   }];
 
-  Subject subject = 4 [json_name = "subject", (validate.rules).message.required = true];
+  string permission = 4 [json_name = "permission", (validate.rules).string = {
+    pattern : "^([a-zA-Z][a-zA-Z0-9_]{1,62}[a-zA-Z0-9])$",
+    max_bytes : 64,
+    ignore_empty: false,
+  }];
+
+  Subject subject = 5 [json_name = "subject", (validate.rules).message.required = true];
 }
 
-// LookupEntityRequestMetadata
+// PermissionLookupEntityRequestMetadata
 message PermissionLookupEntityRequestMetadata {
   string schema_version = 1 [json_name = "schema_version"];
   string snap_token = 2 [json_name = "snap_token"];
@@ -222,13 +246,36 @@ message PermissionLookupEntityStreamResponse {
   string entity_id = 1 [json_name = "entity_id"];
 }
 
+// PermissionLinkedEntityRequest
+message PermissionLinkedEntityRequest {
+  string tenant_id = 1 [json_name = "tenant_id", (validate.rules).string = {
+    pattern : "[a-zA-Z0-9-,]+",
+    max_bytes : 64,
+    ignore_empty: false,
+  }];
+
+  PermissionLinkedEntityRequestMetadata metadata = 2 [json_name = "metadata", (validate.rules).message.required = true];
+
+  RelationReference entity_reference = 3 [json_name = "entity_reference"];
+
+  Subject subject = 4 [json_name = "subject"];
+}
+
+// PermissionLookupEntityRequestMetadata
+message PermissionLinkedEntityRequestMetadata {
+  string schema_version = 1 [json_name = "schema_version"];
+  string snap_token = 2 [json_name = "snap_token"];
+  int32 depth = 3 [json_name = "depth", (validate.rules).int32.gte = 3];
+}
+
+
 // ** SCHEMA SERVICE **
 
 // Schema
 service Schema {
   rpc Write(SchemaWriteRequest) returns (SchemaWriteResponse) {
     option (google.api.http) = {
-      post: "/v1/schemas/write"
+      post: "/v1/tenants/{tenant_id}/schemas/write"
       body: "*"
     };
 
@@ -243,7 +290,7 @@ service Schema {
 
   rpc Read(SchemaReadRequest) returns (SchemaReadResponse) {
     option (google.api.http) = {
-      post: "/v1/schemas/read"
+      post: "/v1/tenants/{tenant_id}/schemas/read"
       body: "*"
     };
 
@@ -261,7 +308,13 @@ service Schema {
 
 // SchemaWriteRequest
 message SchemaWriteRequest {
-  string schema = 1 [json_name = "schema"];
+  string tenant_id = 1 [json_name = "tenant_id", (validate.rules).string = {
+    pattern : "[a-zA-Z0-9-,]+",
+    max_bytes : 64,
+    ignore_empty: false,
+  }];
+
+  string schema = 2 [json_name = "schema"];
 }
 
 // SchemaWriteResponse
@@ -273,17 +326,23 @@ message SchemaWriteResponse {
 
 // SchemaReadRequest
 message SchemaReadRequest {
-  SchemaReadRequestMetadata metadata = 1 [json_name = "metadata", (validate.rules).message.required = true];
+  string tenant_id = 1 [json_name = "tenant_id", (validate.rules).string = {
+    pattern : "[a-zA-Z0-9-,]+",
+    max_bytes : 64,
+    ignore_empty: false,
+  }];
+
+  SchemaReadRequestMetadata metadata = 2 [json_name = "metadata", (validate.rules).message.required = true];
 }
 
-// LookupSchemaRequestMetadata
+// SchemaReadRequestMetadata
 message SchemaReadRequestMetadata {
   string schema_version = 1 [json_name = "schema_version"];
 }
 
 // SchemaReadRequest
 message SchemaReadResponse {
-  IndexedSchema schema = 1 [json_name = "schema"];
+  SchemaDefinition schema = 1 [json_name = "schema"];
 }
 
 // ** RELATIONSHIP SERVICE **
@@ -292,7 +351,7 @@ message SchemaReadResponse {
 service Relationship {
   rpc Write(RelationshipWriteRequest) returns (RelationshipWriteResponse) {
     option (google.api.http) = {
-      post: "/v1/relationships/write"
+      post: "/v1/tenants/{tenant_id}/relationships/write"
       body: "*"
     };
 
@@ -307,7 +366,7 @@ service Relationship {
 
   rpc Read(RelationshipReadRequest) returns (RelationshipReadResponse) {
     option (google.api.http) = {
-      post: "/v1/relationships/read"
+      post: "/v1/tenants/{tenant_id}/relationships/read"
       body: "*"
     };
 
@@ -322,7 +381,7 @@ service Relationship {
 
   rpc Delete(RelationshipDeleteRequest) returns (RelationshipDeleteResponse) {
     option (google.api.http) = {
-      post: "/v1/relationships/delete"
+      post: "/v1/tenants/{tenant_id}/relationships/delete"
       body: "*"
     };
 
@@ -338,9 +397,15 @@ service Relationship {
 
 // RelationshipWriteRequest
 message RelationshipWriteRequest {
-  RelationshipWriteRequestMetadata metadata = 1 [json_name = "metadata", (validate.rules).message.required = true];
+  string tenant_id = 1 [json_name = "tenant_id", (validate.rules).string = {
+    pattern : "[a-zA-Z0-9-,]+",
+    max_bytes : 64,
+    ignore_empty: false,
+  }];
 
-  repeated Tuple tuples = 2 [json_name = "tuples", (validate.rules).repeated = {
+  RelationshipWriteRequestMetadata metadata = 2 [json_name = "metadata", (validate.rules).message.required = true];
+
+  repeated Tuple tuples = 3 [json_name = "tuples", (validate.rules).repeated = {
     min_items : 1,
     max_items : 100,
     items : {
@@ -363,9 +428,22 @@ message RelationshipWriteResponse {
 
 // RelationshipReadRequest
 message RelationshipReadRequest {
-  RelationshipReadRequestMetadata metadata = 1 [json_name = "metadata", (validate.rules).message.required = true];
+  string tenant_id = 1 [json_name = "tenant_id", (validate.rules).string = {
+    pattern : "[a-zA-Z0-9-,]+",
+    max_bytes : 64,
+    ignore_empty: false,
+  }];
 
-  TupleFilter filter = 2 [json_name = "filter"];
+  RelationshipReadRequestMetadata metadata = 2 [json_name = "metadata", (validate.rules).message.required = true];
+
+  TupleFilter filter = 3 [json_name = "filter"];
+
+  uint32 page_size = 4 [
+    json_name = "page_size",
+    (validate.rules).uint32 = {gte: 1, lte: 100, ignore_empty: true}
+  ];
+
+  string continuous_token = 5 [json_name = "continuous_token", (validate.rules).string = {ignore_empty: true}];
 }
 
 // RelationshipWriteRequestMetadata
@@ -376,16 +454,118 @@ message RelationshipReadRequestMetadata {
 // RelationshipReadResponse
 message RelationshipReadResponse {
   repeated Tuple tuples = 1 [json_name = "tuples"];
+  string continuous_token = 2 [json_name = "continuous_token"];
 }
 
 // RelationshipDeleteRequest
 message RelationshipDeleteRequest {
-  TupleFilter filter = 1 [json_name = "filter"];
+  string tenant_id = 1 [json_name = "tenant_id", (validate.rules).string = {
+    pattern : "[a-zA-Z0-9-,]+",
+    max_bytes : 64,
+    ignore_empty: false,
+  }];
+
+  TupleFilter filter = 2 [json_name = "filter"];
 }
 
 // RelationshipDeleteResponse
 message RelationshipDeleteResponse {
   string snap_token = 1 [json_name = "snap_token"];
+}
+
+// ** TENANCY SERVICE **
+
+service Tenancy {
+  rpc Create(TenantCreateRequest) returns (TenantCreateResponse) {
+    option (google.api.http) = {
+      post: "/v1/tenants/create"
+      body: "*"
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "create new tenant"
+      tags: [
+        "Tenancy"
+      ]
+      operation_id: "tenants.create"
+    };
+  }
+
+  rpc Delete(TenantDeleteRequest) returns (TenantDeleteResponse) {
+    option (google.api.http) = {
+      delete: "/v1/tenants/{id}"
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "delete tenant"
+      tags: [
+        "Tenancy"
+      ]
+      operation_id: "tenants.delete"
+    };
+  }
+
+  rpc List(TenantListRequest) returns (TenantListResponse) {
+    option (google.api.http) = {
+      post: "/v1/tenants/list"
+      body: "*"
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "list tenants"
+      tags: [
+        "Tenancy"
+      ]
+      operation_id: "tenants.list"
+    };
+  }
+}
+
+// TenantCreateRequest
+message TenantCreateRequest {
+  string id = 1 [json_name = "id", (validate.rules).string = {
+    pattern : "[a-zA-Z0-9-,]+",
+    max_bytes : 64,
+    ignore_empty: false,
+  }];
+
+  string name = 2 [json_name = "name", (validate.rules).string = {
+    max_bytes : 64,
+    ignore_empty: false,
+  }];
+}
+
+// TenantCreateResponse
+message TenantCreateResponse {
+  Tenant tenant = 1 [json_name = "tenant"];
+}
+
+// TenantDeleteRequest
+message TenantDeleteRequest {
+  string id = 1 [json_name = "id", (validate.rules).string = {
+    ignore_empty: false,
+  }];
+}
+
+// TenantDeleteResponse
+message TenantDeleteResponse {
+  Tenant tenant = 1 [json_name = "tenant"];
+}
+
+// TenantListRequest
+message TenantListRequest {
+  uint32 page_size = 4 [
+    json_name = "page_size",
+    (validate.rules).uint32 = {gte: 1, lte: 100, ignore_empty: true}
+  ];
+
+  string continuous_token = 5 [json_name = "continuous_token", (validate.rules).string = {ignore_empty: true}];
+}
+
+// TenantListResponse
+message TenantListResponse {
+  repeated Tenant tenants = 1 [json_name = "tenants"];
+  string continuous_token = 2 [json_name = "continuous_token"];
 }
 
 // ** WELCOME SERVICE **
@@ -420,4 +600,60 @@ message welcomeResponse {
   string permify = 1;
   Sources sources = 2;
   Socials socials = 3;
+}
+
+// ** Consistent SERVICE **
+
+service Consistent {
+  rpc Get(ConsistentGetRequest) returns (ConsistentGetResponse) {
+    option (google.api.http) = {
+      post: "/v1/consistent/get"
+      body: "*"
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "get consistent key"
+      tags: [
+        "Consistent"
+      ]
+      operation_id: "consistent.get"
+    };
+  }
+
+  rpc Set(ConsistentSetRequest) returns (ConsistentSetResponse) {
+    option (google.api.http) = {
+      post: "/v1/consistent/set"
+      body: "*"
+    };
+
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Set consistent key"
+      tags: [
+        "Consistent"
+      ]
+      operation_id: "consistent.set"
+    };
+  }
+}
+
+// ConsistentGetRequest
+message ConsistentGetRequest {
+  PermissionCheckRequest permission_check_request = 1 [json_name = "permission_check_request", (validate.rules).message.required = false];
+}
+
+// ConsistentGetResponse
+message ConsistentGetResponse {
+  PermissionCheckRequest permission_check_request = 1 [json_name = "permission_check_request", (validate.rules).message.required = true];
+  PermissionCheckResponse permission_check_response = 2 [json_name = "permission_check_response", (validate.rules).message.required = true];
+}
+
+// ConsistentGetRequest
+message ConsistentSetRequest {
+  PermissionCheckRequest permission_check_request = 1 [json_name = "permission_check_request", (validate.rules).message.required = true];
+  PermissionCheckResponse permission_check_response = 2 [json_name = "permission_check_response", (validate.rules).message.required = false];
+}
+
+// ConsistentGetResponse
+message ConsistentSetResponse {
+  string value = 1 [json_name = "value"];
 }

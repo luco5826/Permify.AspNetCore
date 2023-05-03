@@ -37,7 +37,7 @@ public class PermifySerivceTests
         await Task.Delay(1000);
 
         var requestContent = new StringContent(DEFAULT_SCHEMA, Encoding.UTF8, "application/json");
-        await _httpClient.PostAsync($"http://localhost:{restMappedPort}/v1/schemas/write", requestContent);
+        await _httpClient.PostAsync($"http://localhost:{restMappedPort}/v1/tenants/t1/schemas/write", requestContent);
 
         _service = new PermifyAuthorizationService(new PermifyOptions
         {

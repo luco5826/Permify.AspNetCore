@@ -19,7 +19,7 @@ public class PermifyAuthorizationService : IPermifyAuthorizationService
         _relationshipClient = new Base.V1.Relationship.RelationshipClient(channel);
     }
 
-    public async Task<string> CreateRelationship(Entity entity, string relation, Subject subject)
+    public async Task<string> CreateRelationship(Entity entity, string relation, Subject subject, String tenant)
     {
         var tupleList = new Google.Protobuf.Collections.RepeatedField<Base.V1.Tuple>();
         tupleList.Add(
@@ -32,6 +32,7 @@ public class PermifyAuthorizationService : IPermifyAuthorizationService
 
         var req = new Base.V1.RelationshipWriteRequest
         {
+            TenantId = tenant,
             Metadata = new Base.V1.RelationshipWriteRequestMetadata
             {
                 SchemaVersion = "",
@@ -43,7 +44,7 @@ public class PermifyAuthorizationService : IPermifyAuthorizationService
         return response.SnapToken;
     }
 
-    public async Task<string> DeleteRelationship(Entity entity, string relation, Subject subject)
+    public async Task<string> DeleteRelationship(Entity entity, string relation, Subject subject, String tenant)
     {
         // Build the EntityFilter
         var entityFilter = new Base.V1.EntityFilter { Type = entity.Type };
@@ -56,6 +57,7 @@ public class PermifyAuthorizationService : IPermifyAuthorizationService
         // Perform the action
         var response = await _relationshipClient.DeleteAsync(new Base.V1.RelationshipDeleteRequest
         {
+            TenantId = tenant,
             Filter = new Base.V1.TupleFilter
             {
                 Entity = entityFilter,
@@ -67,10 +69,11 @@ public class PermifyAuthorizationService : IPermifyAuthorizationService
         return response.SnapToken;
     }
 
-    public async Task<IEnumerable<string>> SchemaLookup(string entityType, IEnumerable<string> relationNames)
+    public async Task<IEnumerable<string>> SchemaLookup(string entityType, IEnumerable<string> relationNames, String tenant)
     {
         var request = new Base.V1.PermissionLookupSchemaRequest
         {
+            TenantId = tenant,
             Metadata = new Base.V1.PermissionLookupSchemaRequestMetadata
             {
                 SchemaVersion = "",
@@ -81,14 +84,15 @@ public class PermifyAuthorizationService : IPermifyAuthorizationService
 
         var response = await _permissionClient.LookupSchemaAsync(request);
 
-        return response.ActionNames.AsEnumerable<string>();
+        return response.PermissionNames.AsEnumerable<string>();
     }
 
-    public async Task<bool> Can(Subject subject, string action, Entity entity)
+    public async Task<bool> Can(Subject subject, string action, Entity entity, String tenant)
     {
         var response = await _permissionClient.CheckAsync(
             new Base.V1.PermissionCheckRequest
             {
+                TenantId = tenant,
                 Metadata = new Base.V1.PermissionCheckRequestMetadata
                 {
                     SchemaVersion = "",
@@ -111,7 +115,7 @@ public class PermifyAuthorizationService : IPermifyAuthorizationService
         return response.Can == Base.V1.PermissionCheckResponse.Types.Result.Allowed;
     }
 
-    public async Task<IEnumerable<Subject>> ReadRelationship(Entity entity, string relation)
+    public async Task<IEnumerable<Subject>> ReadRelationship(Entity entity, string relation, String tenant)
     {
         var entityFilter = new Base.V1.EntityFilter
         {
@@ -121,6 +125,7 @@ public class PermifyAuthorizationService : IPermifyAuthorizationService
 
         var response = await _relationshipClient.ReadAsync(new Base.V1.RelationshipReadRequest
         {
+            TenantId = tenant,
             Metadata = new Base.V1.RelationshipReadRequestMetadata { SnapToken = "" },
             Filter = new Base.V1.TupleFilter
             {
